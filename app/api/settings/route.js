@@ -12,6 +12,8 @@ export async function GET() {
   return NextResponse.json({
     settings: {
       brandName: s.brandName,
+      brandLogo: s.brandLogo,
+      brandTagline: s.brandTagline,
       activationPrice: s.activationPrice,
       currency: s.currency,
       paymentProvider: s.paymentProvider,

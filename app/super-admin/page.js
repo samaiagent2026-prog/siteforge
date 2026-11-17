@@ -7,6 +7,7 @@ import {
   Check,
   CreditCard,
   DollarSign,
+  Image as ImageIcon,
   Link2,
   Loader2,
   Lock,
@@ -21,6 +22,8 @@ import {
 } from 'lucide-react';
 import { useUiLang } from '@/components/LanguageProvider';
 import LanguageToggle from '@/components/LanguageToggle';
+import BrandMark, { refreshBrand, useBrand } from '@/components/Brand';
+import LogoUploader from '@/components/admin/LogoUploader';
 
 const TOKEN_KEY = 'siteforge.adminToken';
 
@@ -90,6 +93,7 @@ const TABS = [
 
 export default function SuperAdminPage() {
   const { t, lang } = useUiLang();
+  const brandSettings = useBrand();
 
   const [token, setToken] = useState(null);
   const [password, setPassword] = useState('');
@@ -169,6 +173,7 @@ export default function SuperAdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Save failed');
       setSettings(data.settings);
+      refreshBrand();
       setStatus(t('admin.savedStatus'));
       window.setTimeout(() => setStatus(''), 2500);
     } catch (err) {
@@ -230,8 +235,8 @@ export default function SuperAdminPage() {
           onSubmit={login}
           className="relative w-full max-w-sm animate-slide-up rounded-3xl bg-white p-7 shadow-pop"
         >
-          <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-ink-900 text-white">
-            <Lock size={22} />
+          <span className="mb-5 flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-ink-900 text-white">
+            <BrandMark settings={brandSettings} size={48} radius="rounded-none" fallback={<Lock size={22} />} />
           </span>
           <h1 className="text-xl font-extrabold tracking-tight text-ink-900">{t('admin.title')}</h1>
           <p className="mt-1 text-sm text-ink-500">{t('admin.subtitle')}</p>
@@ -279,9 +284,7 @@ export default function SuperAdminPage() {
       <header className="sticky top-0 z-20 border-b border-ink-200 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900 text-white">
-              <ShieldAlert size={18} />
-            </span>
+            <BrandMark settings={brandSettings} size={36} />
             <div className="leading-tight">
               <div className="text-sm font-extrabold tracking-tight text-ink-900">{t('admin.title')}</div>
               <div className="text-[11px] text-ink-400">{t('admin.panelSubtitle')}</div>
@@ -439,15 +442,53 @@ export default function SuperAdminPage() {
                     </div>
                   ) : null}
 
-                  <div className="max-w-md">
-                    <Field label={t('admin.brandName')}>
-                      <input
-                        type="text"
-                        value={settings.brandName || ''}
-                        onChange={(e) => patch({ brandName: e.target.value })}
-                        className="field"
-                      />
-                    </Field>
+                  <div className="border-t border-ink-100 pt-6">
+                    <SectionHeading
+                      icon={ImageIcon}
+                      title={t('admin.brandingTitle')}
+                      description={t('admin.brandingDesc')}
+                    />
+                    <div className="grid gap-5 lg:grid-cols-2">
+                      <div>
+                        <Field label={t('admin.logoTitle')} hint={t('admin.logoFormats')}>
+                          <LogoUploader
+                            value={settings.brandLogo || ''}
+                            name={settings.brandName}
+                            tagline={settings.brandTagline}
+                            onChange={(logo) => patch({ brandLogo: logo })}
+                          />
+                        </Field>
+                      </div>
+                      <div className="space-y-4">
+                        <Field label={t('admin.brandName')}>
+                          <input
+                            type="text"
+                            value={settings.brandName || ''}
+                            onChange={(e) => patch({ brandName: e.target.value })}
+                            className="field"
+                          />
+                        </Field>
+                        <Field label={t('admin.brandTagline')}>
+                          <input
+                            type="text"
+                            value={settings.brandTagline || ''}
+                            onChange={(e) => patch({ brandTagline: e.target.value })}
+                            className="field"
+                          />
+                        </Field>
+                        <div className="rounded-2xl border border-ink-200 bg-ink-50 p-3">
+                          <div className="mb-2 text-[10px] font-bold uppercase tracking-wide text-ink-400">
+                            {t('admin.logoPreview')}
+                          </div>
+                          <div className="flex items-center gap-2.5 rounded-xl bg-white px-3 py-2.5 shadow-card">
+                            <BrandMark settings={settings} size={32} />
+                            <span className="text-sm font-extrabold tracking-tight text-ink-900">
+                              {settings.brandName || t('common.appName')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : null}

@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Check, CreditCard, Rocket, Server, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, CreditCard, Rocket, Server } from 'lucide-react';
 import ActivationModal from '@/components/publish/ActivationModal';
 import HostingHub from '@/components/publish/HostingHub';
 import DeployStep from '@/components/publish/DeployStep';
 import GabsterWidget from '@/components/GabsterWidget';
+import BrandMark, { useBrand } from '@/components/Brand';
 import { useUiLang } from '@/components/LanguageProvider';
 import LanguageToggle from '@/components/LanguageToggle';
 
@@ -18,6 +19,7 @@ const STEPS = [
 
 export default function PublishPage() {
   const { t } = useUiLang();
+  const brand = useBrand();
   const [settings, setSettings] = useState(null);
   const [step, setStep] = useState('activate');
   const [order, setOrder] = useState(null);
@@ -64,11 +66,9 @@ export default function PublishPage() {
           <div className="flex items-center gap-3">
             <LanguageToggle />
             <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white">
-                <Sparkles size={14} />
-              </span>
+              <BrandMark settings={brand} size={28} radius="rounded-lg" />
               <span className="text-sm font-extrabold text-ink-900">
-                {settings ? settings.brandName : t('common.appName')}
+                {brand ? brand.brandName : t('common.appName')}
               </span>
             </div>
           </div>

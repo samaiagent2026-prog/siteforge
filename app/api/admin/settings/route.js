@@ -25,6 +25,8 @@ export async function PUT(request) {
   const patch = {};
   const allowed = [
     'brandName',
+    'brandLogo',
+    'brandTagline',
     'activationPrice',
     'currency',
     'paymentProvider',

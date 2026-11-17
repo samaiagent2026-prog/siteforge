@@ -65,15 +65,32 @@ The dev server runs on port 12000. The public preview is
 
 ## Testing notes
 
-Playwright is not in `package.json`. Install test-only with
-`npm install --no-save playwright` (browsers are already cached under
-`~/.cache/ms-playwright`). FTP tests use `pyftpdlib` (already installed) on port 2121.
+`npm run test:e2e` runs `tests/e2e.js` (Playwright, declared as a devDependency). It needs a
+live dev server; browsers are cached under `~/.cache/ms-playwright`. It covers the bilingual
+UI, template gallery + deep links, ZIP export contents, and the admin logo upload. FTP tests
+use `pyftpdlib` (already installed) on port 2121.
+
+The suite toggles settings and then restores them, and it applies a template — so run it
+against a scratch `.data` directory if you need the previous site document back.
 
 `next build` overwrites `.next/`, which breaks a concurrently running `next dev`. Restart
 the dev server after a production build before running browser tests.
 
 Site state persists server-side in `./.data`, so E2E tests that toggle settings must be
 idempotent (check current state before toggling) or they fail on a second run.
+
+## Brand logo & templates
+
+- The owner uploads the platform logo in **Super admin → General → Branding**. It is stored
+  as a data URL in settings (`brandLogo`), served by the public `GET /api/settings`, and
+  rendered by `components/Brand.js` (`BrandMark` + the `useBrand()` hook, which caches the
+  fetch module-wide; call `refreshBrand()` after saving so open pages update).
+- `lib/templates.js` holds the template library. `listTemplates()` returns **metadata only**
+  (id, category, name, nameAr, desc, accent, preview) — `getTemplate(id)` returns the built
+  site document. When adding a field to a template object, remember to surface it in
+  `listTemplates()` too, or the gallery silently renders blank names.
+- Builder deep links: `/builder?template=<id>` applies that template on load, and
+  `/builder?templates=1` opens the gallery. The landing page cards use these.
 
 ## Gotchas
 

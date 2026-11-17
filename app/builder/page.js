@@ -6,7 +6,9 @@ import { ArrowLeft, Check, Cloud, Loader2, MousePointer2, Sparkles } from 'lucid
 import BuilderTopbar from '@/components/builder/BuilderTopbar';
 import Canvas from '@/components/builder/Canvas';
 import LanguagesModal from '@/components/builder/LanguagesModal';
+import TemplatesModal from '@/components/builder/TemplatesModal';
 import { createDefaultSite } from '@/lib/defaults';
+import { getTemplate } from '@/lib/templates';
 import { languageMeta } from '@/lib/compile';
 import { useUiLang } from '@/components/LanguageProvider';
 
@@ -18,6 +20,7 @@ export default function BuilderPage() {
   const [zoom, setZoom] = useState(0.9);
   const [fitScale, setFitScale] = useState(1);
   const [showLanguages, setShowLanguages] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [activeLang, setActiveLang] = useState('en');
@@ -37,10 +40,24 @@ export default function BuilderPage() {
 
   useEffect(() => {
     let alive = true;
+    const params = new URLSearchParams(window.location.search);
+    const wantedTemplate = params.get('template');
+    if (params.get('templates') === '1') setShowTemplates(true);
+
     fetch('/api/site?id=default')
       .then((r) => r.json())
       .then((data) => {
         if (!alive) return;
+        if (wantedTemplate) {
+          const doc = getTemplate(wantedTemplate);
+          if (doc) {
+            setSite(doc);
+            setActiveLang(doc.languages?.default || 'en');
+            save(doc, true);
+            window.history.replaceState({}, '', '/builder');
+            return;
+          }
+        }
         if (data && data.site && Array.isArray(data.site.elements)) {
           setSite(data.site);
           setActiveLang((data.site.languages && data.site.languages.default) || 'en');
@@ -197,6 +214,18 @@ export default function BuilderPage() {
 
   const languages = useMemo(() => languageMeta(site), [site]);
 
+  const applyTemplate = useCallback(
+    (doc) => {
+      setSite(doc);
+      setSelectedId(null);
+      setActiveLang(doc.languages?.default || 'en');
+      setShowTemplates(false);
+      notify(t('templates.loadedToast', { name: doc.name }));
+      save(doc, true);
+    },
+    [notify, save, t]
+  );
+
   useEffect(() => {
     if (!languages.some((l) => l.code === activeLang)) {
       setActiveLang(site.languages?.default || languages[0]?.code || 'en');
@@ -209,6 +238,7 @@ export default function BuilderPage() {
         site={site}
         onAdd={addElement}
         onOpenLanguages={() => setShowLanguages(true)}
+        onOpenTemplates={() => setShowTemplates(true)}
         onDownload={download}
         onPublish={() => {
           save(site, true);
@@ -277,6 +307,13 @@ export default function BuilderPage() {
           onClose={() => setShowLanguages(false)}
         />
       ) : null}
+
+      <TemplatesModal
+        open={showTemplates}
+        onClose={() => setShowTemplates(false)}
+        onApply={applyTemplate}
+        currentName={site.name}
+      />
 
       {toast ? (
         <div className="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2">

@@ -7,6 +7,7 @@ import {
   Globe,
   Image as ImageIcon,
   LayoutGrid,
+  LayoutTemplate,
   Minus,
   MousePointerClick,
   Phone,
@@ -24,6 +25,7 @@ import { ICON_NAMES } from '@/lib/icons';
 import { Icon } from './ElementRenderer';
 import { useUiLang } from '@/components/LanguageProvider';
 import LanguageToggle from '@/components/LanguageToggle';
+import BrandMark, { useBrand } from '@/components/Brand';
 
 const CATALOG_ITEM = () => ({
   id: `item_${Math.random().toString(36).slice(2, 9)}`,
@@ -87,6 +89,7 @@ export default function BuilderTopbar({
   site,
   onAdd,
   onOpenLanguages,
+  onOpenTemplates,
   onDownload,
   onPublish,
   onSave,
@@ -98,6 +101,7 @@ export default function BuilderTopbar({
   languageOptions,
 }) {
   const { t } = useUiLang();
+  const brandSettings = useBrand();
   const [showIcons, setShowIcons] = useState(false);
   const canvasWidth = site.canvas?.width || CANVAS_WIDTH;
 
@@ -109,9 +113,7 @@ export default function BuilderTopbar({
   return (
     <header className="z-30 flex flex-wrap items-center gap-2 border-b border-ink-200 bg-white/95 px-3 py-2 shadow-card backdrop-blur">
       <div className="flex items-center gap-2 pe-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm">
-          <Sparkles size={16} />
-        </span>
+        <BrandMark settings={brandSettings} size={32} />
         <div className="leading-tight">
           <div className="max-w-[160px] truncate text-sm font-extrabold tracking-tight text-ink-900">
             {site.name || t('builder.websiteName')}
@@ -123,6 +125,15 @@ export default function BuilderTopbar({
       </div>
 
       <div className="mx-1 hidden h-6 w-px bg-ink-200 sm:block" />
+
+      {/* Templates — the fastest way for a new client to get a good-looking site */}
+      <button
+        type="button"
+        onClick={onOpenTemplates}
+        className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:from-brand-700 hover:to-brand-600"
+      >
+        <LayoutTemplate size={14} /> {t('builder.templates')}
+      </button>
 
       {/* Add element */}
       <Menu label={t('builder.add')} icon={Plus}>

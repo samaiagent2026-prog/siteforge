@@ -22,6 +22,15 @@ user builds, while this translates the builder and platform screens.
 
 ## Features
 
+### Professional templates
+Seven finished, bilingual designs — business, restaurant, portfolio, SaaS, store, agency
+and clinic. Open the gallery from the builder's **Templates** button or the landing page,
+and a design is loaded into the canvas ready to edit. Templates carry their own palette,
+sections, images and English + Arabic content.
+
+The landing page also deep-links straight into the builder:
+`/builder?template=saas` loads a template, `/builder?templates=1` opens the gallery.
+
 ### Visual builder (`/builder`)
 - True WYSIWYG drag-and-drop canvas. Every element (text, icons, buttons, images, logo,
   sections, product catalog) can be moved freely with the mouse.
@@ -49,6 +58,8 @@ user builds, while this translates the builder and platform screens.
 
 ### Super Admin (`/super-admin`)
 Password-protected dashboard to change, without touching code:
+- Branding: platform name, tagline and an uploadable **logo** (shown in the landing
+  header, the builder top bar, the publish wizard and the admin panel).
 - Activation price and currency, plus payment gateway selection.
 - Affiliate URLs for the four hosting providers.
 - The Gabster assistant embed snippet.
@@ -74,6 +85,7 @@ Other scripts:
 npm run build    # production build
 npm run start    # serve the production build on port 12000
 npm run lint
+npm run test:e2e # Playwright end-to-end checks (needs the dev server running)
 ```
 
 ## Environment variables

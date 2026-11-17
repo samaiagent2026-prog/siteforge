@@ -102,3 +102,18 @@ idempotent (check current state before toggling) or they fail on a second run.
   non-standard port must be written as `host:port`.
 - Tailwind class order matters for the `btn`/`field`/`surface` component classes defined in
   `app/globals.css` — they are used across the app for consistent styling.
+
+## GitHub
+
+The repository is `samaiagent2026-prog/siteforge` (public). Default branch is `main`; the
+same commit also lives on `siteforge-platform`. Pushing from this sandbox needs a classic
+PAT with `repo` scope — the environment `GITHUB_TOKEN` returns 403 for repo creation and
+pushes. Git smart HTTP wants **Basic** auth, so `Bearer` in `http.extraheader` fails while a
+base64 `x-access-token:<pat>` header works:
+
+```bash
+git -c http.extraheader="Authorization: Basic $(printf 'x-access-token:%s' "$TOK" | base64 -w0)" push origin HEAD
+```
+
+`.gitignore` excludes `node_modules/`, `.next/` and `.data/`; keep it that way so builds and
+site state never reach the remote.

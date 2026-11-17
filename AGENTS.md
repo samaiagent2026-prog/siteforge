@@ -67,7 +67,8 @@ The dev server runs on port 12000. The public preview is
 
 `npm run test:e2e` runs `tests/e2e.js` (Playwright, declared as a devDependency). It needs a
 live dev server; browsers are cached under `~/.cache/ms-playwright`. It covers the bilingual
-UI, template gallery + deep links, ZIP export contents, and the admin logo upload. FTP tests
+UI, builder interactions, template gallery + deep links, ZIP export contents, the publish
+wizard steps, and the admin logo upload. FTP tests
 use `pyftpdlib` (already installed) on port 2121.
 
 The suite toggles settings and then restores them, and it applies a template — so run it
@@ -96,5 +97,8 @@ idempotent (check current state before toggling) or they fail on a second run.
 
 - `LanguageProvider` is a **named** export (`import { LanguageProvider }`), not default.
 - Lucide has both `TriangleAlert` and `AlertTriangle`; prefer `TriangleAlert`.
+- `POST /api/deploy-ftp` takes the port **inside the host string** (`127.0.0.1:2121`), parsed
+  by `parseHost()`; there is no separate `port` field, so a local test server on a
+  non-standard port must be written as `host:port`.
 - Tailwind class order matters for the `btn`/`field`/`surface` component classes defined in
   `app/globals.css` — they are used across the app for consistent styling.

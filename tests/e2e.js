@@ -131,6 +131,23 @@ async function setLang(code) {
   check('exported HTML has a language switcher', html.includes('lang-bar') && html.includes('data-code="ar"'));
   check('exported HTML includes Arabic text', /[\u0600-\u06FF]/.test(html));
 
+  /* ---------------- publish wizard ---------------- */
+  await page.goto(`${BASE}/publish`, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(1200);
+  check('publish shows the activation step', await page.getByText('Publish your website').first().isVisible());
+  await page.getByRole('button', { name: /Activate for/ }).click();
+  await page.waitForTimeout(900);
+  await page.getByRole('button', { name: /Pay|Confirm|Complete|Checkout|Activate/i }).last().click();
+  await page.waitForTimeout(2500);
+  const hub = await page.locator('body').innerText();
+  check(
+    'hosting hub lists all four providers',
+    ['Hostinger', 'GoDaddy', 'Namecheap', 'Bluehost'].every((h) => hub.includes(h))
+  );
+  await page.getByRole('button', { name: /I have my details/i }).click();
+  await page.waitForTimeout(1500);
+  check('FTP step asks for the 3 deployment details', (await page.locator('input').count()) >= 3);
+
   /* ---------------- brand logo ---------------- */
   await page.goto(`${BASE}/super-admin`, { waitUntil: 'networkidle' });
   await page.waitForTimeout(1200);

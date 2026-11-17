@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
+import { useUiLang } from '@/components/LanguageProvider';
 
 export const PALETTE = [
   '#000000', '#1f2937', '#374151', '#6b7280', '#9ca3af', '#d1d5db', '#f3f4f6', '#ffffff',
@@ -70,6 +71,7 @@ export default function ColorPicker({
   align = 'left',
   buttonClassName = '',
 }) {
+  const { t } = useUiLang();
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState([]);
   const [place, setPlace] = useState({ h: align, v: 'down' });
@@ -129,13 +131,13 @@ export default function ColorPicker({
         className={`flex items-center gap-2 rounded-lg border border-ink-200 bg-white px-2 py-1.5 text-xs font-medium text-ink-700 transition hover:border-brand-400 hover:bg-brand-50 ${buttonClassName}`}
       >
         <ColorSwatch color={current} />
-        <span className="tabular-nums">{current === 'transparent' ? 'None' : current}</span>
+        <span className="tabular-nums">{current === 'transparent' ? t('common.none') : current}</span>
       </button>
 
       {open ? (
         <div
           ref={popRef}
-          className={`absolute z-50 w-[268px] rounded-2xl border border-ink-200 bg-white p-3 shadow-2xl animate-scale-in ${
+          className={`absolute z-50 w-[268px] rounded-2xl border border-ink-200 bg-white p-3 shadow-pop animate-scale-in ${
             place.v === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'
           } ${place.h === 'right' ? 'right-0' : 'left-0'}`}
         >
@@ -146,7 +148,7 @@ export default function ColorPicker({
                 type="button"
                 onClick={() => setOpen(false)}
                 className="rounded p-0.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
-                aria-label="Close colour picker"
+                aria-label={t('picker.closePicker')}
               >
                 <X size={14} />
               </button>
@@ -189,13 +191,13 @@ export default function ColorPicker({
               }`}
             >
               <span className="checker h-4 w-4 rounded border border-ink-200" />
-              Transparent (no fill)
+              {t('picker.transparent')}
             </button>
           ) : null}
 
           {recent.length ? (
             <div className="mt-3">
-              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">Recent</div>
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-400">{t('picker.recent')}</div>
               <div className="flex flex-wrap gap-1.5">
                 {recent.map((color) => (
                   <button
@@ -214,7 +216,7 @@ export default function ColorPicker({
           <div className="mt-3 border-t border-ink-100 pt-3">
             <div className="mb-1.5 flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">
-                Fine tune (optional)
+                {t('picker.fineTune')}
               </span>
             </div>
             <input
@@ -264,7 +266,7 @@ export default function ColorPicker({
                 value={/^#[0-9a-f]{6}$/i.test(current) ? current : '#2544f5'}
                 onChange={(e) => commit(e.target.value)}
                 className="h-8 w-10 cursor-pointer rounded border border-ink-200 bg-white p-0.5"
-                aria-label="Custom colour"
+                aria-label={t('picker.customColour')}
               />
               <input
                 type="text"

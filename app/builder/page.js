@@ -8,8 +8,10 @@ import Canvas from '@/components/builder/Canvas';
 import LanguagesModal from '@/components/builder/LanguagesModal';
 import { createDefaultSite } from '@/lib/defaults';
 import { languageMeta } from '@/lib/compile';
+import { useUiLang } from '@/components/LanguageProvider';
 
 export default function BuilderPage() {
+  const { t } = useUiLang();
   const [site, setSite] = useState(() => createDefaultSite());
   const [loaded, setLoaded] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
@@ -25,6 +27,11 @@ export default function BuilderPage() {
     setToast({ message, tone });
     window.setTimeout(() => setToast(null), 2600);
   }, []);
+
+  // Keep the translator in a ref so `save` stays stable across UI language
+  // switches — otherwise changing language would trigger a needless autosave.
+  const tRef = useRef(t);
+  tRef.current = t;
 
   /* ------------ load / persist ------------ */
 
@@ -55,9 +62,9 @@ export default function BuilderPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ site: next }),
         });
-        if (!silent) notify('Website saved');
+        if (!silent) notify(tRef.current('builder.savedToast'));
       } catch {
-        notify('Could not save right now', 'error');
+        notify(tRef.current('builder.saveFailed'), 'error');
       } finally {
         setSaving(false);
       }
@@ -92,8 +99,8 @@ export default function BuilderPage() {
   const addElement = useCallback((el) => {
     setSite((s) => ({ ...s, elements: [...s.elements, el] }));
     setSelectedId(el.id);
-    notify(`${el.type} added`);
-  }, [notify]);
+    notify(t('builder.addedToast', { type: el.type }));
+  }, [notify, t]);
 
   const updateElement = useCallback((id, patch) => {
     setSite((s) => ({
@@ -121,9 +128,9 @@ export default function BuilderPage() {
     (id) => {
       setSite((s) => ({ ...s, elements: s.elements.filter((el) => el.id !== id) }));
       setSelectedId((cur) => (cur === id ? null : cur));
-      notify('Element deleted');
+      notify(t('builder.deletedToast'));
     },
-    [notify]
+    [notify, t]
   );
 
   const duplicateElement = useCallback(
@@ -143,9 +150,9 @@ export default function BuilderPage() {
         };
         return { ...s, elements: [...s.elements, copy] };
       });
-      notify('Element duplicated');
+      notify(t('builder.duplicatedToast'));
     },
-    [notify]
+    [notify, t]
   );
 
   const reorder = useCallback((id, direction) => {
@@ -182,11 +189,11 @@ export default function BuilderPage() {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      notify('Website downloaded');
+      notify(t('builder.downloadedToast'));
     } catch {
-      notify('Download failed, please try again', 'error');
+      notify(t('builder.downloadFailed'), 'error');
     }
-  }, [site, notify]);
+  }, [site, notify, t]);
 
   const languages = useMemo(() => languageMeta(site), [site]);
 
@@ -238,27 +245,27 @@ export default function BuilderPage() {
       </div>
 
       {/* Status bar */}
-      <footer className="flex items-center justify-between border-t border-ink-200 bg-white px-4 py-1.5 text-[11px] text-ink-500">
+      <footer className="flex items-center justify-between border-t border-ink-200 bg-white/90 px-4 py-1.5 text-[11px] text-ink-500 backdrop-blur">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
-            <MousePointer2 size={12} /> {site.elements.length} elements
+            <MousePointer2 size={12} /> {t('builder.elementCount', { count: site.elements.length })}
           </span>
           <span className="hidden items-center gap-1.5 sm:flex">
-            <Sparkles size={12} /> Drag · resize · right-click for actions
+            <Sparkles size={12} /> {t('builder.statusHint')}
           </span>
         </div>
         <div className="flex items-center gap-3">
           {saving ? (
             <span className="flex items-center gap-1.5">
-              <Loader2 size={12} className="animate-spin" /> Saving…
+              <Loader2 size={12} className="animate-spin" /> {t('common.saving')}
             </span>
           ) : (
             <span className="flex items-center gap-1.5 text-emerald-600">
-              <Cloud size={12} /> Saved
+              <Cloud size={12} /> {t('common.saved')}
             </span>
           )}
           <Link href="/" className="flex items-center gap-1.5 hover:text-brand-700">
-            <ArrowLeft size={12} /> Home
+            <ArrowLeft size={12} className="rtl:rotate-180" /> {t('nav.home')}
           </Link>
         </div>
       </footer>

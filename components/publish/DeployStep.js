@@ -15,8 +15,10 @@ import {
   Server,
   User,
 } from 'lucide-react';
+import { useUiLang } from '@/components/LanguageProvider';
 
 function Field({ icon: IconCmp, label, hint, children }) {
+  const { t } = useUiLang();
   const [showHint, setShowHint] = useState(false);
   return (
     <div>
@@ -32,9 +34,9 @@ function Field({ icon: IconCmp, label, hint, children }) {
           onClick={() => setShowHint((v) => !v)}
           className="relative flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold text-brand-600 hover:bg-brand-50"
         >
-          <HelpCircle size={12} /> Where is this?
+          <HelpCircle size={12} /> {t('deploy.whereIsThis')}
           {showHint ? (
-            <span className="absolute right-0 top-full z-20 mt-1 w-60 rounded-xl bg-ink-900 px-3 py-2 text-left text-[11px] font-medium leading-snug text-white shadow-xl">
+            <span className="absolute end-0 top-full z-20 mt-1 w-60 rounded-xl bg-ink-900 px-3 py-2 text-start text-[11px] font-medium leading-snug text-white shadow-xl">
               {hint}
             </span>
           ) : null}
@@ -46,6 +48,7 @@ function Field({ icon: IconCmp, label, hint, children }) {
 }
 
 export default function DeployStep({ reference, onBack }) {
+  const { t } = useUiLang();
   const [form, setForm] = useState({ domain: '', host: '', user: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -89,10 +92,13 @@ export default function DeployStep({ reference, onBack }) {
         <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700">
           <Check size={32} />
         </span>
-        <h1 className="text-2xl font-extrabold text-ink-900 sm:text-3xl">Your website is live! 🎉</h1>
+        <h1 className="text-2xl font-extrabold text-ink-900 sm:text-3xl">{t('deploy.liveTitle')}</h1>
         <p className="mx-auto mt-2 max-w-lg text-sm text-ink-500">
-          We uploaded your files to <strong>{form.domain}</strong>. It can take a few minutes for DNS to
-          update everywhere.
+          {t('deploy.liveBody', { domain: form.domain }).split(form.domain).flatMap((part, i, arr) => {
+            const nodes = [part];
+            if (i < arr.length - 1) nodes.push(<strong key={i}>{form.domain}</strong>);
+            return nodes;
+          })}
         </p>
 
         <a
@@ -101,11 +107,11 @@ export default function DeployStep({ reference, onBack }) {
           rel="noreferrer noopener"
           className="mx-auto mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 px-6 py-3 text-base font-bold text-white shadow-lg transition hover:from-brand-700 hover:to-brand-600"
         >
-          Open {form.domain} <ExternalLink size={17} />
+          {t('deploy.openSite', { domain: form.domain })} <ExternalLink size={17} />
         </a>
 
-        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-ink-200 bg-white p-4 text-left">
-          <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-400">Upload log</h3>
+        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-ink-200 bg-white p-4 text-start">
+          <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-400">{t('deploy.uploadLog')}</h3>
           <pre className="max-h-52 overflow-auto scroll-thin rounded-xl bg-ink-900 p-3 text-[11px] leading-relaxed text-emerald-300">
             {log.join('\n')}
           </pre>
@@ -119,7 +125,7 @@ export default function DeployStep({ reference, onBack }) {
           }}
           className="mt-4 text-xs font-semibold text-ink-500 hover:text-brand-700"
         >
-          Publish another website
+          {t('deploy.publishAnother')}
         </button>
       </div>
     );
@@ -131,17 +137,15 @@ export default function DeployStep({ reference, onBack }) {
         <span className="mb-3 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
           <Rocket size={24} />
         </span>
-        <h1 className="text-2xl font-extrabold text-ink-900 sm:text-3xl">Publish your website</h1>
-        <p className="mx-auto mt-2 max-w-lg text-sm text-ink-500">
-          Just three details from your hosting welcome email. We handle the rest.
-        </p>
+        <h1 className="text-2xl font-extrabold text-ink-900 sm:text-3xl">{t('deploy.title')}</h1>
+        <p className="mx-auto mt-2 max-w-lg text-sm text-ink-500">{t('deploy.subtitle')}</p>
       </div>
 
       <div className="mx-auto max-w-xl space-y-5 rounded-3xl border border-ink-200 bg-white p-6 shadow-sm">
         <Field
           icon={Link2}
-          label="1. Domain name"
-          hint="The address you bought, for example mybusiness.com. Leave out http:// and any slashes."
+          label={t('deploy.domain')}
+          hint={t('deploy.domainHint')}
         >
           <input
             type="text"
@@ -154,8 +158,8 @@ export default function DeployStep({ reference, onBack }) {
 
         <Field
           icon={Server}
-          label="2. FTP host or server IP"
-          hint="Found in the welcome email as 'FTP host', 'FTP server' or 'Host'. It looks like ftp.mybusiness.com or an IP such as 123.45.67.89."
+          label={t('deploy.host')}
+          hint={t('deploy.hostHint')}
         >
           <input
             type="text"
@@ -168,15 +172,15 @@ export default function DeployStep({ reference, onBack }) {
 
         <Field
           icon={User}
-          label="3. FTP username and password"
-          hint="Both are printed in the same welcome email. Copy them exactly — passwords are case sensitive."
+          label={t('deploy.creds')}
+          hint={t('deploy.credsHint')}
         >
           <div className="space-y-2">
             <input
               type="text"
               value={form.user}
               onChange={set('user')}
-              placeholder="FTP username"
+              placeholder={t('deploy.username')}
               className={inputClass}
             />
             <div className="relative">
@@ -184,14 +188,14 @@ export default function DeployStep({ reference, onBack }) {
                 type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={set('password')}
-                placeholder="FTP password"
-                className={`${inputClass} pr-11`}
+                placeholder={t('deploy.password')}
+                className={`${inputClass} pe-11`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute end-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+                aria-label={showPassword ? t('deploy.hidePassword') : t('deploy.showPassword')}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -201,9 +205,7 @@ export default function DeployStep({ reference, onBack }) {
 
         <div className="flex items-start gap-2 rounded-2xl bg-ink-50 px-4 py-3 text-xs text-ink-600">
           <KeyRound size={15} className="mt-0.5 shrink-0 text-ink-400" />
-          <span>
-            Your password is used only to upload your website and is never stored on our servers.
-          </span>
+          <span>{t('deploy.privacy')}</span>
         </div>
 
         {error ? (
@@ -226,7 +228,7 @@ export default function DeployStep({ reference, onBack }) {
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 px-5 py-4 text-base font-extrabold text-white shadow-lg transition hover:from-brand-700 hover:to-brand-600 disabled:opacity-60"
         >
           {busy ? <Loader2 size={18} className="animate-spin" /> : <Rocket size={18} />}
-          {busy ? 'Uploading your website…' : 'Launch My Website 🚀'}
+          {busy ? t('deploy.uploading') : t('deploy.launch')}
         </button>
 
         <button
@@ -234,7 +236,7 @@ export default function DeployStep({ reference, onBack }) {
           onClick={onBack}
           className="w-full rounded-xl px-4 py-2 text-xs font-semibold text-ink-500 hover:bg-ink-50"
         >
-          Back to hosting options
+          {t('deploy.backToHosting')}
         </button>
       </div>
     </div>

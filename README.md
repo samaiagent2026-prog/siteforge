@@ -7,6 +7,19 @@ their site to their own hosting over FTP — all without any human help.
 Built with Next.js 14 (App Router), Tailwind CSS, Lucide icons, `basic-ftp` (server-side
 publishing) and `jszip` (instant local download).
 
+## Interface language (Arabic / English)
+
+The platform itself is fully bilingual. A segmented EN / ع switch sits in the header of
+every screen (landing, builder, publish wizard and Super Admin). Switching:
+
+- flips the whole document direction (`<html dir="rtl">` for Arabic) using logical CSS
+  utilities (`ms-`/`me-`, `start`/`end`), so layouts mirror correctly;
+- swaps the UI typeface to Cairo for Arabic;
+- is saved to `localStorage` and restored before first paint, so there is no flash.
+
+This is separate from the *site content* languages below: those translate the website a
+user builds, while this translates the builder and platform screens.
+
 ## Features
 
 ### Visual builder (`/builder`)
@@ -40,6 +53,9 @@ Password-protected dashboard to change, without touching code:
 - Affiliate URLs for the four hosting providers.
 - The Gabster assistant embed snippet.
 - Sales overview: revenue, paid activations, deployments, websites, and full logs.
+
+The panel is organised into four tabs (General & pricing, Affiliate links, Gabster
+chatbot, Deployments log) and is fully bilingual.
 
 ### Gabster assistant
 A floating chat widget is embedded on the publish pages. It uses the script configured
@@ -92,10 +108,12 @@ components/
   builder/    # Canvas, FloatingToolbar, ElementRenderer, LanguagesModal, topbar
   publish/    # ActivationModal, HostingHub, DeployStep
   ColorPicker.js  GabsterWidget.js
+  LanguageProvider.js  LanguageToggle.js   # bilingual UI context + EN/ع switch
 lib/
   auth.js     # password check + signed session tokens
   compile.js  # single site compiler shared by download and FTP deploy
   defaults.js # starter site, languages, settings
+  i18n.js     # Arabic + English UI dictionary and translator
   icons.js    # curated icon set as raw SVG paths
   store.js    # JSON persistence
 ```

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,6 +6,11 @@
 
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Arabic UI: switch the whole document to an Arabic-first typeface. */
+html[dir='rtl'] {
+  --font-sans: 'Cairo', 'Tajawal', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 html,
@@ -16,10 +21,20 @@ body {
 body {
   @apply bg-ink-50 text-ink-900 antialiased;
   font-family: var(--font-sans);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus rings that follow the writing direction and stay visible on any bg. */
+:focus-visible {
+  @apply outline-none ring-2 ring-brand-500/60 ring-offset-1;
+}
+
+::selection {
+  @apply bg-brand-200 text-ink-900;
 }
 
 /* Thin, unobtrusive scrollbars for builder panels */
@@ -37,6 +52,10 @@ body {
   border: 2px solid transparent;
   background-clip: content-box;
 }
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background: #a9b2c6;
+  background-clip: content-box;
+}
 .scroll-thin::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -51,6 +70,34 @@ body {
   background-position: 0 0, 0 6px, 6px -6px, -6px 0;
 }
 
+/* Reusable surface treatments keep cards consistent across the app. */
+.surface {
+  @apply rounded-2xl border border-ink-200 bg-white shadow-card;
+}
+.surface-interactive {
+  @apply transition duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lift;
+}
+.field {
+  @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 transition
+    placeholder:text-ink-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 focus:outline-none;
+}
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition
+    disabled:cursor-not-allowed disabled:opacity-60;
+}
+.btn-primary {
+  @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800;
+}
+.btn-secondary {
+  @apply btn border border-ink-200 bg-white text-ink-700 hover:border-ink-300 hover:bg-ink-50;
+}
+.btn-ghost {
+  @apply btn text-ink-600 hover:bg-ink-100 hover:text-ink-900;
+}
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide;
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -62,7 +109,7 @@ body {
   }
 }
 .toast-in {
-  animation: toast-in 0.22s ease-out;
+  animation: toast-in 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 input[type='range'] {
@@ -74,3 +121,18 @@ input[type='range']::-webkit-slider-thumb {
 input[type='range']::-moz-range-thumb {
   @apply h-4 w-4 rounded-full border-0 bg-brand-600 shadow;
 }
+
+/* Numbers stay left-to-right even inside RTL layouts (prices, refs, code). */
+.tabular-nums,
+code,
+pre,
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+[dir='rtl'] code,
+[dir='rtl'] pre,
+[dir='rtl'] .font-mono {
+  direction: ltr;
+  text-align: right;
+}
+

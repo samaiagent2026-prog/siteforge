@@ -7,14 +7,17 @@ import ActivationModal from '@/components/publish/ActivationModal';
 import HostingHub from '@/components/publish/HostingHub';
 import DeployStep from '@/components/publish/DeployStep';
 import GabsterWidget from '@/components/GabsterWidget';
+import { useUiLang } from '@/components/LanguageProvider';
+import LanguageToggle from '@/components/LanguageToggle';
 
 const STEPS = [
-  { key: 'activate', label: 'Activation', icon: CreditCard },
-  { key: 'hosting', label: 'Hosting & domain', icon: Server },
-  { key: 'deploy', label: 'Publish', icon: Rocket },
+  { key: 'activate', labelKey: 'publish.activation', icon: CreditCard },
+  { key: 'hosting', labelKey: 'publish.hostingDomain', icon: Server },
+  { key: 'deploy', labelKey: 'publish.publishStep', icon: Rocket },
 ];
 
 export default function PublishPage() {
+  const { t } = useUiLang();
   const [settings, setSettings] = useState(null);
   const [step, setStep] = useState('activate');
   const [order, setOrder] = useState(null);
@@ -56,15 +59,18 @@ export default function PublishPage() {
       <header className="border-b border-ink-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-3">
           <Link href="/builder" className="flex items-center gap-2 text-sm font-semibold text-ink-600 hover:text-brand-700">
-            <ArrowLeft size={16} /> Back to builder
+            <ArrowLeft size={16} className="rtl:rotate-180" /> {t('nav.backToBuilder')}
           </Link>
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white">
-              <Sparkles size={14} />
-            </span>
-            <span className="text-sm font-extrabold text-ink-900">
-              {settings ? settings.brandName : 'SiteForge'}
-            </span>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white">
+                <Sparkles size={14} />
+              </span>
+              <span className="text-sm font-extrabold text-ink-900">
+                {settings ? settings.brandName : t('common.appName')}
+              </span>
+            </div>
           </div>
         </div>
       </header>
@@ -95,7 +101,7 @@ export default function PublishPage() {
                       active ? 'text-ink-900' : done ? 'text-emerald-600' : 'text-ink-400'
                     }`}
                   >
-                    {s.label}
+                    {t(s.labelKey)}
                   </span>
                 </div>
                 {i < STEPS.length - 1 ? (
@@ -109,25 +115,22 @@ export default function PublishPage() {
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-10">
         {!ready ? (
-          <div className="py-24 text-center text-sm text-ink-400">Loading…</div>
+          <div className="py-24 text-center text-sm text-ink-400">{t('common.loading')}</div>
         ) : step === 'activate' ? (
           <div className="mx-auto max-w-2xl text-center">
             <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl bg-brand-50 text-brand-700">
               <Rocket size={28} />
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
-              Publish your website
+              {t('publish.title')}
             </h1>
-            <p className="mx-auto mt-3 max-w-xl text-base text-ink-500">
-              Three short steps: activate your site, choose where to host it, then we upload everything for
-              you automatically. No technical skills needed.
-            </p>
+            <p className="mx-auto mt-3 max-w-xl text-base text-ink-500">{t('publish.subtitle')}</p>
 
-            <div className="mt-8 grid gap-3 text-left sm:grid-cols-3">
+            <div className="mt-8 grid gap-3 text-start sm:grid-cols-3">
               {[
-                ['1', 'Activate', `One-time ${price.toFixed(0)} ${currency} activation fee.`],
-                ['2', 'Choose hosting', 'Big friendly buttons for popular providers.'],
-                ['3', 'Go live', 'Paste 3 details and we publish it for you.'],
+                ['1', t('publish.step1Title'), t('publish.step1Body', { price: `${price.toFixed(0)} ${currency}` })],
+                ['2', t('publish.step2Title'), t('publish.step2Body')],
+                ['3', t('publish.step3Title'), t('publish.step3Body')],
               ].map(([n, title, body]) => (
                 <div key={n} className="rounded-2xl border border-ink-200 bg-white p-4">
                   <span className="mb-2 flex h-7 w-7 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">
@@ -141,7 +144,7 @@ export default function PublishPage() {
 
             {order ? (
               <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-semibold text-emerald-800">
-                Activation complete — reference {order.reference}. Continue to choose your hosting.
+                {t('publish.activationComplete', { ref: order.reference })}
               </div>
             ) : null}
 
@@ -152,7 +155,7 @@ export default function PublishPage() {
                   onClick={() => setStep('hosting')}
                   className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 px-7 py-3.5 text-base font-extrabold text-white shadow-lg transition hover:from-brand-700 hover:to-brand-600"
                 >
-                  Continue <Rocket size={17} />
+                  {t('common.continue')} <Rocket size={17} />
                 </button>
               ) : (
                 <button
@@ -160,14 +163,14 @@ export default function PublishPage() {
                   onClick={() => setShowActivation(true)}
                   className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 px-7 py-3.5 text-base font-extrabold text-white shadow-lg transition hover:from-brand-700 hover:to-brand-600"
                 >
-                  <CreditCard size={17} /> Activate for {price.toFixed(0)} {currency}
+                  <CreditCard size={17} /> {t('publish.activateFor', { price: `${price.toFixed(0)} ${currency}` })}
                 </button>
               )}
               <Link
                 href="/builder"
                 className="rounded-2xl border border-ink-200 bg-white px-6 py-3.5 text-sm font-bold text-ink-600 transition hover:border-brand-300 hover:text-brand-700"
               >
-                Keep editing
+                {t('publish.keepEditing')}
               </Link>
             </div>
           </div>

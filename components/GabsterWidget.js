@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useUiLang } from './LanguageProvider';
 
 /**
  * Loads the Gabster chat widget (gabster.ai) configured from the Super Admin panel.
@@ -8,6 +9,7 @@ import { useEffect } from 'react';
  * so the assistant slot is always visible and never breaks the page.
  */
 export default function GabsterWidget({ script }) {
+  const { t } = useUiLang();
   useEffect(() => {
     if (!script) return undefined;
     const container = document.createElement('div');
@@ -33,14 +35,14 @@ export default function GabsterWidget({ script }) {
       href="https://gabster.ai"
       target="_blank"
       rel="noreferrer noopener"
-      className="fixed bottom-5 right-5 z-40 flex items-center gap-3 rounded-2xl bg-ink-900 px-4 py-3 text-white shadow-2xl transition hover:bg-ink-800"
+      className="fixed bottom-5 end-5 z-40 flex items-center gap-3 rounded-2xl bg-ink-900 px-4 py-3 text-white shadow-pop transition hover:-translate-y-0.5 hover:bg-ink-800"
     >
       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 text-lg">
         💬
       </span>
       <span className="leading-tight">
-        <span className="block text-sm font-bold">Gabster Assistant</span>
-        <span className="block text-[11px] text-ink-300">Need help? Ask me anything</span>
+        <span className="block text-sm font-bold">{t('gabster.name')}</span>
+        <span className="block text-[11px] text-ink-300">{t('gabster.hint')}</span>
       </span>
     </a>
   );

@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { Check, Globe, Plus, Trash2, X } from 'lucide-react';
 import { LANGUAGES } from '@/lib/defaults';
+import { useUiLang } from '@/components/LanguageProvider';
 
 const RTL = ['ar', 'ur', 'he', 'fa'];
 
 export default function LanguagesModal({ site, onChange, onClose }) {
+  const { t } = useUiLang();
   const cfg = site.languages || { enabled: ['en'], default: 'en', custom: [] };
   const custom = cfg.custom || [];
   const all = [...LANGUAGES, ...custom];
@@ -29,11 +31,11 @@ export default function LanguagesModal({ site, onChange, onClose }) {
     const code = newLang.code.trim().toLowerCase();
     const label = newLang.label.trim() || newLang.code.trim();
     if (!/^[a-z]{2}(-[a-z]{2})?$/.test(code)) {
-      setError('Use a short language code, e.g. pt or pt-BR.');
+      setError(t('langModal.errCode'));
       return;
     }
     if (all.some((l) => l.code === code)) {
-      setError('That language code already exists.');
+      setError(t('langModal.errExists'));
       return;
     }
     setError('');
@@ -56,7 +58,7 @@ export default function LanguagesModal({ site, onChange, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/45 p-4" onMouseDown={onClose}>
       <div
-        className="max-h-[88vh] w-full max-w-2xl animate-scale-in overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="max-h-[88vh] w-full max-w-2xl animate-scale-in overflow-hidden rounded-3xl bg-white shadow-pop"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
@@ -65,17 +67,15 @@ export default function LanguagesModal({ site, onChange, onClose }) {
               <Globe size={20} />
             </span>
             <div>
-              <h2 className="text-base font-extrabold text-ink-900">Website languages</h2>
-              <p className="text-xs text-ink-500">
-                Turn on as many as you need. Arabic and other right-to-left languages switch automatically.
-              </p>
+              <h2 className="text-base font-extrabold text-ink-900">{t('langModal.title')}</h2>
+              <p className="text-xs text-ink-500">{t('langModal.subtitle')}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <X size={18} />
           </button>
@@ -97,7 +97,7 @@ export default function LanguagesModal({ site, onChange, onClose }) {
                   <button
                     type="button"
                     onClick={() => toggle(l.code)}
-                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                    className="flex min-w-0 flex-1 items-center gap-2 text-start"
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
@@ -117,7 +117,7 @@ export default function LanguagesModal({ site, onChange, onClose }) {
                     {on ? (
                       <button
                         type="button"
-                        title="Use as default"
+                        title={t('langModal.useAsDefault')}
                         onClick={() => commit({ default: l.code })}
                         className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase transition ${
                           isDefault
@@ -125,13 +125,13 @@ export default function LanguagesModal({ site, onChange, onClose }) {
                             : 'bg-white text-ink-500 ring-1 ring-ink-200 hover:text-brand-700'
                         }`}
                       >
-                        {isDefault ? 'Default' : 'Set'}
+                        {isDefault ? t('toolbar.default') : t('langModal.set')}
                       </button>
                     ) : null}
                     {isCustom ? (
                       <button
                         type="button"
-                        title="Remove language"
+                        title={t('langModal.removeLanguage')}
                         onClick={() => removeCustom(l.code)}
                         className="rounded-md p-1 text-ink-400 hover:bg-red-50 hover:text-red-600"
                       >
@@ -145,10 +145,10 @@ export default function LanguagesModal({ site, onChange, onClose }) {
           </div>
 
           <div className="mt-5 rounded-2xl border border-dashed border-ink-300 p-4">
-            <h3 className="mb-2 text-sm font-bold text-ink-800">Add your own language</h3>
+            <h3 className="mb-2 text-sm font-bold text-ink-800">{t('langModal.addYourOwn')}</h3>
             <div className="flex flex-wrap items-end gap-2">
               <label className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">Code</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{t('langModal.code')}</span>
                 <input
                   type="text"
                   value={newLang.code}
@@ -158,7 +158,7 @@ export default function LanguagesModal({ site, onChange, onClose }) {
                 />
               </label>
               <label className="flex flex-1 flex-col gap-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">Name</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{t('langModal.name')}</span>
                 <input
                   type="text"
                   value={newLang.label}
@@ -168,14 +168,14 @@ export default function LanguagesModal({ site, onChange, onClose }) {
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">Direction</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-400">{t('langModal.direction')}</span>
                 <select
                   value={newLang.dir}
                   onChange={(e) => setNewLang({ ...newLang, dir: e.target.value })}
                   className="rounded-lg border border-ink-200 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
                 >
-                  <option value="ltr">Left to right</option>
-                  <option value="rtl">Right to left</option>
+                  <option value="ltr">{t('langModal.ltr')}</option>
+                  <option value="rtl">{t('langModal.rtl')}</option>
                 </select>
               </label>
               <button
@@ -192,14 +192,14 @@ export default function LanguagesModal({ site, onChange, onClose }) {
 
         <div className="flex items-center justify-between border-t border-ink-100 bg-ink-50/70 px-5 py-3">
           <p className="text-[11px] text-ink-500">
-            Tip: select any text element and add its translation per language in the floating toolbar.
+            {t('langModal.tip')}
           </p>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg bg-ink-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-ink-800"
           >
-            Done
+            {t('common.done')}
           </button>
         </div>
       </div>

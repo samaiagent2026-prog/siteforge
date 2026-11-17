@@ -13,6 +13,7 @@ import {
 import ElementRenderer from './ElementRenderer';
 import FloatingToolbar from './FloatingToolbar';
 import { makeElement } from '@/lib/defaults';
+import { useUiLang } from '@/components/LanguageProvider';
 
 const HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
@@ -56,6 +57,7 @@ export default function Canvas({
 }) {
   const stageRef = useRef(null);
   const dragState = useRef(null);
+  const { t } = useUiLang();
   const [contextMenu, setContextMenu] = useState(null);
   const [toolbarAnchor, setToolbarAnchor] = useState(null);
   const [dropActive, setDropActive] = useState(false);
@@ -265,30 +267,30 @@ export default function Canvas({
   );
 
   const contextActions = [
-    { label: 'Duplicate', icon: Copy, run: () => duplicateElement(contextMenu.id) },
-    { label: 'Bring forward', icon: ArrowUp, run: () => reorder(contextMenu.id, 'forward') },
-    { label: 'Send backward', icon: ArrowDown, run: () => reorder(contextMenu.id, 'backward') },
+    { label: t('ctx.duplicate'), icon: Copy, run: () => duplicateElement(contextMenu.id) },
+    { label: t('ctx.bringForward'), icon: ArrowUp, run: () => reorder(contextMenu.id, 'forward') },
+    { label: t('ctx.sendBackward'), icon: ArrowDown, run: () => reorder(contextMenu.id, 'backward') },
     {
-      label: contextMenu?.hidden ? 'Show' : 'Hide',
+      label: contextMenu?.hidden ? t('ctx.show') : t('ctx.hide'),
       icon: contextMenu?.hidden ? Eye : EyeOff,
       run: () => patchElement(contextMenu.id, { hidden: !contextMenu.hidden }),
     },
-    { label: 'Delete', icon: Trash2, run: () => deleteElement(contextMenu.id), danger: true },
+    { label: t('ctx.delete'), icon: Trash2, run: () => deleteElement(contextMenu.id), danger: true },
   ];
 
   return (
-    <div className="relative flex-1 overflow-auto bg-ink-100 p-6 scroll-thin" onMouseDown={() => {
-      setSelectedId(null);
-      setContextMenu(null);
-    }}>
-      <div
-        className="mx-auto"
-        style={{ width: canvasWidth * scale, height: canvasHeight * scale }}
-      >
+    <div
+      className="relative flex-1 overflow-auto bg-[radial-gradient(circle_at_1px_1px,#d7dce8_1px,transparent_0)] [background-size:22px_22px] p-6 scroll-thin"
+      onMouseDown={() => {
+        setSelectedId(null);
+        setContextMenu(null);
+      }}
+    >
+      <div className="mx-auto" style={{ width: canvasWidth * scale, height: canvasHeight * scale }}>
         <div
           ref={stageRef}
-          className={`relative origin-top-left shadow-2xl ring-1 ring-ink-200 ${
-            dropActive ? 'ring-2 ring-brand-500' : ''
+          className={`relative origin-top-left rounded-lg shadow-lift ring-1 transition ${
+            dropActive ? 'ring-2 ring-brand-500' : 'ring-ink-200'
           }`}
           style={{
             width: canvasWidth,
@@ -349,7 +351,8 @@ export default function Canvas({
 
                 {isSelected ? (
                   <>
-                    <div className="pointer-events-none absolute -inset-px rounded-[3px] ring-2 ring-brand-500" />
+                    <div className="pointer-events-none absolute -inset-px rounded-[4px] ring-2 ring-brand-500" />
+                    <div className="pointer-events-none absolute -inset-px rounded-[4px] ring-4 ring-brand-500/15" />
                     {HANDLES.map((dir) => {
                       const pos = {
                         nw: 'left-0 top-0 -translate-x-1/2 -translate-y-1/2',
@@ -366,7 +369,7 @@ export default function Canvas({
                           key={dir}
                           role="presentation"
                           onPointerDown={(e) => startResize(e, el, dir)}
-                          className={`absolute z-20 h-2.5 w-2.5 rounded-sm border border-white bg-brand-600 shadow ${pos}`}
+                          className={`absolute z-20 h-2.5 w-2.5 rounded-[3px] border-2 border-white bg-brand-600 shadow-md transition-transform hover:scale-125 ${pos}`}
                           style={{ cursor: HANDLE_CURSOR[dir] }}
                         />
                       );
@@ -382,7 +385,7 @@ export default function Canvas({
       {/* Right-click context menu */}
       {contextMenu ? (
         <div
-          className="fixed z-50 w-52 animate-scale-in overflow-hidden rounded-xl border border-ink-200 bg-white py-1 shadow-2xl"
+          className="fixed z-50 w-52 animate-scale-in overflow-hidden rounded-xl border border-ink-200 bg-white py-1 shadow-pop"
           style={{ left: contextMenu.x, top: contextMenu.y }}
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -394,7 +397,7 @@ export default function Canvas({
                 action.run();
                 setContextMenu(null);
               }}
-              className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-medium transition ${
+              className={`flex w-full items-center gap-2.5 px-3 py-2 text-start text-sm font-medium transition ${
                 action.danger
                   ? 'text-red-600 hover:bg-red-50'
                   : 'text-ink-700 hover:bg-brand-50 hover:text-brand-700'
@@ -426,12 +429,10 @@ export default function Canvas({
       ) : null}
 
       {dropActive ? (
-        <div className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center bg-brand-600/10">
-          <div className="flex items-center gap-3 rounded-2xl bg-white px-6 py-4 shadow-2xl">
+        <div className="pointer-events-none fixed inset-0 z-30 flex items-center justify-center bg-brand-600/10 backdrop-blur-[1px]">
+          <div className="flex items-center gap-3 rounded-2xl bg-white px-6 py-4 shadow-pop">
             <Upload className="text-brand-600" size={22} />
-            <span className="text-sm font-semibold text-ink-800">
-              Drop your image or video to place it here
-            </span>
+            <span className="text-sm font-semibold text-ink-800">{t('builder.dropToPlace')}</span>
           </div>
         </div>
       ) : null}

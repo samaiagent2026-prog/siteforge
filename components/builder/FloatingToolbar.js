@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import ColorPicker from '@/components/ColorPicker';
+import { useUiLang } from '@/components/LanguageProvider';
 import { FONTS, uid } from '@/lib/defaults';
 import { ICON_NAMES } from '@/lib/icons';
 import { Icon } from './ElementRenderer';
@@ -61,7 +62,7 @@ function Section({ title, children, defaultOpen = false }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-ink-500 hover:bg-ink-50"
+        className="flex w-full items-center justify-between px-4 py-2.5 text-start text-xs font-semibold uppercase tracking-wide text-ink-500 hover:bg-ink-50"
       >
         {title}
         <span className="text-ink-400">{open ? '−' : '+'}</span>
@@ -104,6 +105,7 @@ export default function FloatingToolbar({
   languageOptions = [],
   defaultLang = 'en',
 }) {
+  const { t } = useUiLang();
   const [tab, setTab] = useState(el.type === 'catalog' ? 'catalog' : el.type === 'icon' ? 'icon' : 'text');
   const ref = useRef(null);
   const [showIcons, setShowIcons] = useState(false);
@@ -164,9 +166,9 @@ export default function FloatingToolbar({
       style={{ left, top, width }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl">
+      <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-pop">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-ink-100 bg-ink-50/70 px-3 py-2">
+        <div className="flex items-center justify-between border-b border-ink-100 bg-gradient-to-b from-ink-50 to-white px-3 py-2">
           <div className="flex items-center gap-2">
             <span className="rounded-md bg-white px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-brand-700 ring-1 ring-brand-200">
               {el.type}
@@ -176,13 +178,13 @@ export default function FloatingToolbar({
             </span>
           </div>
           <div className="flex items-center gap-0.5">
-            <Btn title="Duplicate" onClick={onDuplicate}>
+            <Btn title={t('common.duplicate')} onClick={onDuplicate}>
               <Copy size={15} />
             </Btn>
-            <Btn title="Delete" onClick={onDelete} danger>
+            <Btn title={t('common.delete')} onClick={onDelete} danger>
               <Trash2 size={15} />
             </Btn>
-            <Btn title="Close" onClick={onClose}>
+            <Btn title={t('common.close')} onClick={onClose}>
               <X size={15} />
             </Btn>
           </div>
@@ -190,15 +192,15 @@ export default function FloatingToolbar({
 
         {/* Quick actions */}
         <div className="flex flex-wrap items-center gap-1.5 border-b border-ink-100 px-3 py-2">
-          <Group label="Order">
-            <Btn title="Bring forward" onClick={onBringForward}>
+          <Group label={t('toolbar.order')}>
+            <Btn title={t('toolbar.bringForward')} onClick={onBringForward}>
               <Layers size={15} />
             </Btn>
-            <Btn title="Send backward" onClick={onSendBackward}>
+            <Btn title={t('toolbar.sendBackward')} onClick={onSendBackward}>
               <Minus size={15} />
             </Btn>
           </Group>
-          <Group label="Align">
+          <Group label={t('toolbar.align')}>
             {[
               ['left', AlignLeft],
               ['center', AlignCenter],
@@ -207,7 +209,7 @@ export default function FloatingToolbar({
             ].map(([value, IconCmp]) => (
               <Btn
                 key={value}
-                title={`Align ${value}`}
+                title={t(`toolbar.align${value.charAt(0).toUpperCase()}${value.slice(1)}`)}
                 active={style.align === value}
                 onClick={() => patchStyle({ align: value })}
               >
@@ -220,12 +222,12 @@ export default function FloatingToolbar({
         {/* Tabs */}
         <div className="flex gap-1 border-b border-ink-100 px-3 pt-2">
           {[
-            ['text', 'Text', Type],
-            ['design', 'Design', LayoutGrid],
-            ...(isImage ? [['media', 'Image', ImageIcon]] : []),
-            ...(isSection ? [['media', 'Video', Video]] : []),
-            ...(isIcon ? [['icon', 'Icon', SparkleIcon]] : []),
-            ...(isCatalog ? [['catalog', 'Products', LayoutGrid]] : []),
+            ['text', t('toolbar.tabText'), Type],
+            ['design', t('toolbar.tabDesign'), LayoutGrid],
+            ...(isImage ? [['media', t('toolbar.tabImage'), ImageIcon]] : []),
+            ...(isSection ? [['media', t('toolbar.tabVideo'), Video]] : []),
+            ...(isIcon ? [['icon', t('toolbar.tabIcon'), SparkleIcon]] : []),
+            ...(isCatalog ? [['catalog', t('toolbar.tabProducts'), LayoutGrid]] : []),
           ].map(([key, label, IconCmp]) => (
             <button
               key={key}
@@ -245,13 +247,13 @@ export default function FloatingToolbar({
           {/* ---------- TEXT ---------- */}
           {tab === 'text' ? (
             <>
-              <Section title="Content" defaultOpen>
+              <Section title={t('toolbar.content')} defaultOpen>
                 {el.type === 'button' || el.type === 'phone' ? (
                   <input
                     type="text"
                     value={content.text || ''}
                     onChange={(e) => patchContent({ text: e.target.value })}
-                    placeholder="Label"
+                    placeholder={t('toolbar.label')}
                     className="w-full rounded-lg border border-ink-200 px-2.5 py-2 text-sm focus:border-brand-500 focus:outline-none"
                   />
                 ) : (
@@ -259,7 +261,7 @@ export default function FloatingToolbar({
                     value={content.text || ''}
                     onChange={(e) => patchContent({ text: e.target.value })}
                     rows={2}
-                    placeholder="Write your text"
+                    placeholder={t('toolbar.writeText')}
                     className="w-full resize-y rounded-lg border border-ink-200 px-2.5 py-2 text-sm focus:border-brand-500 focus:outline-none"
                   />
                 )}
@@ -268,7 +270,7 @@ export default function FloatingToolbar({
                     type="text"
                     value={content.href || ''}
                     onChange={(e) => patchContent({ href: e.target.value })}
-                    placeholder="Link URL (https://… or #)"
+                    placeholder={t('toolbar.linkUrl')}
                     className="w-full rounded-lg border border-ink-200 px-2.5 py-2 text-xs focus:border-brand-500 focus:outline-none"
                   />
                 ) : null}
@@ -283,8 +285,8 @@ export default function FloatingToolbar({
                 ) : null}
               </Section>
 
-              <Section title="Typography" defaultOpen>
-                <Row label="Font">
+              <Section title={t('toolbar.typography')} defaultOpen>
+                <Row label={t('toolbar.font')}>
                   <select
                     value={style.fontFamily || 'Inter'}
                     onChange={(e) => patchStyle({ fontFamily: e.target.value })}
@@ -297,7 +299,7 @@ export default function FloatingToolbar({
                     ))}
                   </select>
                 </Row>
-                <Row label="Size">
+                <Row label={t('toolbar.size')}>
                   <input
                     type="range"
                     min={8}
@@ -313,7 +315,7 @@ export default function FloatingToolbar({
                     className="w-14 rounded-lg border border-ink-200 px-1.5 py-1 text-xs focus:border-brand-500 focus:outline-none"
                   />
                 </Row>
-                <Row label="Weight">
+                <Row label={t('toolbar.weight')}>
                   <div className="flex gap-0.5">
                     {[300, 400, 600, 700, 800].map((w) => (
                       <button
@@ -331,7 +333,7 @@ export default function FloatingToolbar({
                     ))}
                   </div>
                 </Row>
-                <Row label="Line height">
+                <Row label={t('toolbar.lineHeight')}>
                   <input
                     type="range"
                     min={0.8}
@@ -342,7 +344,7 @@ export default function FloatingToolbar({
                     className="w-[120px]"
                   />
                 </Row>
-                <Row label="Letter spacing">
+                <Row label={t('toolbar.letterSpacing')}>
                   <input
                     type="range"
                     min={-3}
@@ -353,12 +355,12 @@ export default function FloatingToolbar({
                     className="w-[120px]"
                   />
                 </Row>
-                <Row label="Text colour">
-                  <ColorPicker label="Text" value={style.color} onChange={(c) => patchStyle({ color: c })} />
+                <Row label={t('toolbar.textColour')}>
+                  <ColorPicker label={t('toolbar.textColour')} value={style.color} onChange={(c) => patchStyle({ color: c })} />
                 </Row>
-                <Row label="Background">
+                <Row label={t('toolbar.background')}>
                   <ColorPicker
-                    label="Background"
+                    label={t('toolbar.background')}
                     value={style.bg}
                     allowTransparent
                     onChange={(c) => patchStyle({ bg: c })}
@@ -367,35 +369,32 @@ export default function FloatingToolbar({
               </Section>
 
               {languageOptions.length > 1 && TEXT_TYPES.includes(el.type) ? (
-                <Section title="Translations">
-                  <p className="text-[11px] leading-snug text-ink-500">
-                    Write this element&apos;s text in each language. Empty fields fall back to the default
-                    language.
-                  </p>
+                <Section title={t('toolbar.translations')}>
+                  <p className="text-[11px] leading-snug text-ink-500">{t('toolbar.translationsHint')}</p>
                   {languageOptions.map((l) => (
                     <div key={l.code} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-ink-600">
                           {l.label}
-                          <span className="ml-1 text-[10px] font-medium uppercase text-ink-400">
+                          <span className="ms-1 text-[10px] font-medium uppercase text-ink-400">
                             {l.code}
                           </span>
                         </span>
                         {l.code === defaultLang ? (
                           <span className="rounded bg-ink-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-ink-500">
-                            Default
+                            {t('toolbar.default')}
                           </span>
                         ) : null}
                       </div>
                       {l.code === defaultLang ? (
                         <div className="rounded-lg border border-ink-100 bg-ink-50 px-2.5 py-1.5 text-xs text-ink-500">
-                          Edit the default text in the Content section above.
+                          {t('toolbar.editDefaultText')}
                         </div>
                       ) : (
                         <input
                           type="text"
                           value={(el.i18n && el.i18n[l.code] && el.i18n[l.code].text) || ''}
-                          placeholder={`Text in ${l.label}`}
+                          placeholder={t('toolbar.textIn', { lang: l.label })}
                           dir={l.dir}
                           onChange={(e) =>
                             onPatch({ i18n: { ...(el.i18n || {}), [l.code]: { text: e.target.value } } })
@@ -412,8 +411,8 @@ export default function FloatingToolbar({
 
           {/* ---------- DESIGN ---------- */}
           {tab === 'design' ? (
-            <Section title="Box styling" defaultOpen>
-              <Row label="Width">
+            <Section title={t('toolbar.design')} defaultOpen>
+              <Row label={t('toolbar.width')}>
                 <input
                   type="number"
                   value={Math.round(el.w)}
@@ -421,7 +420,7 @@ export default function FloatingToolbar({
                   className="w-20 rounded-lg border border-ink-200 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none"
                 />
               </Row>
-              <Row label="Height">
+              <Row label={t('toolbar.height')}>
                 <input
                   type="number"
                   value={Math.round(el.h)}
@@ -429,7 +428,7 @@ export default function FloatingToolbar({
                   className="w-20 rounded-lg border border-ink-200 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none"
                 />
               </Row>
-              <Row label="Corner radius">
+              <Row label={t('toolbar.radius')}>
                 <input
                   type="range"
                   min={0}
@@ -439,7 +438,7 @@ export default function FloatingToolbar({
                   className="w-[120px]"
                 />
               </Row>
-              <Row label="Opacity">
+              <Row label={t('toolbar.opacity')}>
                 <input
                   type="range"
                   min={0.1}
@@ -450,7 +449,7 @@ export default function FloatingToolbar({
                   className="w-[120px]"
                 />
               </Row>
-              <Row label="Padding X">
+              <Row label={t('toolbar.paddingX')}>
                 <input
                   type="range"
                   min={0}
@@ -460,7 +459,7 @@ export default function FloatingToolbar({
                   className="w-[120px]"
                 />
               </Row>
-              <Row label="Padding Y">
+              <Row label={t('toolbar.paddingY')}>
                 <input
                   type="range"
                   min={0}
@@ -470,7 +469,7 @@ export default function FloatingToolbar({
                   className="w-[120px]"
                 />
               </Row>
-              <Row label="Border">
+              <Row label={t('toolbar.border')}>
                 <input
                   type="range"
                   min={0}
@@ -480,13 +479,13 @@ export default function FloatingToolbar({
                   className="w-[80px]"
                 />
                 <ColorPicker
-                  label="Border"
+                  label={t('toolbar.border')}
                   value={style.borderColor || '#e5e7eb'}
                   onChange={(c) => patchStyle({ borderColor: c })}
                   align="right"
                 />
               </Row>
-              <Row label="Drop shadow">
+              <Row label={t('toolbar.dropShadow')}>
                 <button
                   type="button"
                   onClick={() => patchStyle({ shadow: !style.shadow })}
@@ -494,13 +493,13 @@ export default function FloatingToolbar({
                     style.shadow ? 'bg-brand-600 text-white' : 'bg-ink-100 text-ink-600'
                   }`}
                 >
-                  {style.shadow ? 'On' : 'Off'}
+                  {style.shadow ? t('toolbar.on') : t('toolbar.off')}
                 </button>
               </Row>
               {!isSection ? (
-                <Row label="Fill">
+                <Row label={t('toolbar.fill')}>
                   <ColorPicker
-                    label="Fill"
+                    label={t('toolbar.fill')}
                     value={style.bg}
                     allowTransparent
                     onChange={(c) => patchStyle({ bg: c })}
@@ -513,12 +512,10 @@ export default function FloatingToolbar({
 
           {/* ---------- MEDIA ---------- */}
           {tab === 'media' ? (
-            <Section title={isSection ? 'Background video' : 'Image'} defaultOpen>
+            <Section title={isSection ? t('toolbar.videoSection') : t('toolbar.media')} defaultOpen>
               {isSection ? (
                 <>
-                  <div className="text-[11px] text-ink-500">
-                    Paste a video URL (MP4/WebM) or upload one. It plays muted and looped behind this section.
-                  </div>
+                  <div className="text-[11px] text-ink-500">{t('toolbar.videoHint')}</div>
                   <input
                     type="text"
                     value={content.videoUrl || ''}
@@ -527,7 +524,7 @@ export default function FloatingToolbar({
                     className="w-full rounded-lg border border-ink-200 px-2.5 py-2 text-xs focus:border-brand-500 focus:outline-none"
                   />
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-ink-300 px-3 py-2 text-xs font-semibold text-ink-600 hover:border-brand-400 hover:bg-brand-50">
-                    <Upload size={14} /> Upload video file
+                    <Upload size={14} /> {t('toolbar.uploadVideo')}
                     <input
                       type="file"
                       accept="video/*"
@@ -555,7 +552,7 @@ export default function FloatingToolbar({
                   </Row>
                   <div className="rounded-xl border border-ink-200 p-3">
                     <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-ink-400">
-                      Section background
+                      {t('toolbar.sectionBackground')}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       {['color', 'gradient'].map((kind) => (
@@ -573,7 +570,7 @@ export default function FloatingToolbar({
                         </button>
                       ))}
                       <ColorPicker
-                        label="From"
+                        label={t('toolbar.colourFrom')}
                         value={(content.bg || {}).from || (content.bg || {}).color || '#3b66ff'}
                         onChange={(c) =>
                           patchContent({
@@ -586,7 +583,7 @@ export default function FloatingToolbar({
                       />
                       {(content.bg || {}).type === 'gradient' ? (
                         <ColorPicker
-                          label="To"
+                          label={t('toolbar.colourTo')}
                           value={(content.bg || {}).to || '#1c33e1'}
                           onChange={(c) => patchContent({ bg: { ...(content.bg || {}), to: c } })}
                         />
@@ -596,9 +593,7 @@ export default function FloatingToolbar({
                 </>
               ) : (
                 <>
-                  <div className="text-[11px] text-ink-500">
-                    Drop an image anywhere on the canvas, or upload one here.
-                  </div>
+                  <div className="text-[11px] text-ink-500">{t('toolbar.imageHint')}</div>
                   <input
                     type="text"
                     value={content.src || ''}
@@ -607,7 +602,7 @@ export default function FloatingToolbar({
                     className="w-full rounded-lg border border-ink-200 px-2.5 py-2 text-xs focus:border-brand-500 focus:outline-none"
                   />
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-ink-300 px-3 py-2 text-xs font-semibold text-ink-600 hover:border-brand-400 hover:bg-brand-50">
-                    <Upload size={14} /> Upload image
+                    <Upload size={14} /> {t('toolbar.uploadImage')}
                     <input
                       type="file"
                       accept="image/*"
@@ -626,14 +621,14 @@ export default function FloatingToolbar({
                       onClick={() => patchContent({ src: '' })}
                       className="w-full rounded-lg bg-ink-100 px-3 py-1.5 text-xs font-semibold text-ink-600 hover:bg-ink-200"
                     >
-                      Remove image
+                      {t('toolbar.removeImage')}
                     </button>
                   ) : null}
                   <input
                     type="text"
                     value={content.alt || ''}
                     onChange={(e) => patchContent({ alt: e.target.value })}
-                    placeholder="Alt text (accessibility)"
+                    placeholder={t('toolbar.altText')}
                     className="w-full rounded-lg border border-ink-200 px-2.5 py-2 text-xs focus:border-brand-500 focus:outline-none"
                   />
                 </>
@@ -643,13 +638,13 @@ export default function FloatingToolbar({
 
           {/* ---------- ICON ---------- */}
           {tab === 'icon' ? (
-            <Section title="Icon" defaultOpen>
-              <Row label="Colour">
-                <ColorPicker label="Icon" value={style.color} onChange={(c) => patchStyle({ color: c })} />
+            <Section title={t('toolbar.icon')} defaultOpen>
+              <Row label={t('toolbar.iconColour')}>
+                <ColorPicker label={t('toolbar.iconColour')} value={style.color} onChange={(c) => patchStyle({ color: c })} />
               </Row>
-              <Row label="Background">
+              <Row label={t('toolbar.background')}>
                 <ColorPicker
-                  label="Background"
+                  label={t('toolbar.background')}
                   value={style.bg}
                   allowTransparent
                   onChange={(c) => patchStyle({ bg: c })}
@@ -660,7 +655,7 @@ export default function FloatingToolbar({
                 onClick={() => setShowIcons((v) => !v)}
                 className="w-full rounded-lg bg-ink-100 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-200"
               >
-                {showIcons ? 'Hide icon library' : `Browse ${ICON_NAMES.length} icons`}
+                {showIcons ? t('toolbar.hideIcons') : t('toolbar.browseIcons', { count: ICON_NAMES.length })}
               </button>
               {showIcons ? (
                 <div className="grid max-h-56 grid-cols-8 gap-1 overflow-y-auto scroll-thin rounded-xl border border-ink-200 p-2">
@@ -684,8 +679,8 @@ export default function FloatingToolbar({
 
           {/* ---------- CATALOG ---------- */}
           {tab === 'catalog' ? (
-            <Section title="Product grid" defaultOpen>
-              <Row label="Columns">
+            <Section title={t('toolbar.productGrid')} defaultOpen>
+              <Row label={t('toolbar.columns')}>
                 <input
                   type="range"
                   min={1}
@@ -701,7 +696,7 @@ export default function FloatingToolbar({
                   <div key={item.id} className="rounded-xl border border-ink-200 p-2">
                     <div className="mb-1.5 flex items-center justify-between">
                       <span className="text-[11px] font-bold uppercase tracking-wide text-ink-400">
-                        Item {index + 1}
+                        {t('toolbar.item', { n: index + 1 })}
                       </span>
                       <button
                         type="button"
@@ -718,7 +713,7 @@ export default function FloatingToolbar({
                       <input
                         type="text"
                         value={item.title || ''}
-                        placeholder="Title"
+                        placeholder={t('toolbar.title')}
                         onChange={(e) =>
                           patchContent({
                             items: content.items.map((i) =>
@@ -732,7 +727,7 @@ export default function FloatingToolbar({
                         <input
                           type="text"
                           value={item.price || ''}
-                          placeholder="$29"
+                          placeholder={t('toolbar.price')}
                           onChange={(e) =>
                             patchContent({
                               items: content.items.map((i) =>
@@ -743,7 +738,7 @@ export default function FloatingToolbar({
                           className="w-24 rounded-lg border border-ink-200 px-2 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
                         />
                         <label className="flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-dashed border-ink-300 px-2 py-1.5 text-[11px] font-semibold text-ink-600 hover:border-brand-400 hover:bg-brand-50">
-                          <ImageIcon size={12} /> {item.image ? 'Replace' : 'Photo'}
+                          <ImageIcon size={12} /> {item.image ? t('toolbar.replace') : t('toolbar.photo')}
                           <input
                             type="file"
                             accept="image/*"
@@ -764,7 +759,7 @@ export default function FloatingToolbar({
                       <input
                         type="text"
                         value={item.description || ''}
-                        placeholder="Short description"
+                        placeholder={t('toolbar.description')}
                         onChange={(e) =>
                           patchContent({
                             items: content.items.map((i) =>
@@ -786,7 +781,7 @@ export default function FloatingToolbar({
                       ...(content.items || []),
                       {
                         id: uid('item'),
-                        title: 'New product',
+                        title: t('builder.newProduct'),
                         price: '$0',
                         description: '',
                         image: '',
@@ -796,7 +791,7 @@ export default function FloatingToolbar({
                 }
                 className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-600 px-3 py-2 text-xs font-bold text-white hover:bg-brand-700"
               >
-                <Plus size={14} /> Add product
+                <Plus size={14} /> {t('toolbar.addProduct')}
               </button>
             </Section>
           ) : null}
@@ -808,9 +803,9 @@ export default function FloatingToolbar({
             onClick={onToggleHidden}
             className="text-[11px] font-semibold text-ink-500 hover:text-ink-800"
           >
-            {el.hidden ? 'Show element' : 'Hide element'}
+            {el.hidden ? t('toolbar.showElement') : t('toolbar.hideElement')}
           </button>
-          <span className="text-[11px] text-ink-400">Esc to close</span>
+          <span className="text-[11px] text-ink-400">{t('toolbar.escClose')}</span>
         </div>
       </div>
     </div>
